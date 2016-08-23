@@ -14,21 +14,25 @@ public class RxMQTT : NSObject {
     private var session : MQTTSession?;
     private let internalDelegate = InternalDelegate()
     
+    public init(options: RxMQTTConnectionParams) {
+        self.session = MQTTSession();
+        self.session?.keepAliveInterval = options.keepAlive;
+        self.session?.cleanSessionFlag = options.cleanSession;
+        self.session?.clientId = options.clientId;
+        self.session?.transport = options.transport;
+        
+        self.session?.delegate = internalDelegate;
+    }
+    
+    
     /// Observable which infroms when a new message is received
     public var rx_didReceiveNewMessage: Observable<RxMQTTMessage> {
         return internalDelegate.didReceiveNewMessageSubject;
     }
     
-    public func connect(options: RxMQTTConnectionParams) -> Observable<Bool> {
-        
-        self.session = MQTTSession();
-        self.session?.keepAliveInterval = options.keepAlive;
-        self.session?.cleanSessionFlag = options.cleanSession;
-        self.session?.clientId = options.clientId;
-        self.session?.delegate = internalDelegate;
-        
+    public func connect() -> Observable<Bool> {
         return Observable.create({ (observer) -> Disposable in
-            self.session!.connectToHost(options.host, port: options.port, usingSSL: false) {
+            self.session!.connectWithConnectHandler() {
                 error in
                 if (error != nil) {
                     observer.onError(error);

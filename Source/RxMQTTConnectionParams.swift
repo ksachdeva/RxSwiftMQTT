@@ -6,24 +6,22 @@
 //
 
 import Foundation
+import MQTTClient
 
 public struct RxMQTTConnectionParams {
-    var host: String;
-    var port: UInt32;
-    var clientId: String;
-    var keepAlive: UInt16;
-    var cleanSession: Bool;
+    let transport: MQTTTransport;
+    let clientId: String;
+    let keepAlive: UInt16;
+    let cleanSession: Bool;
     
     public init(
-        host:String,
-        port:UInt32,
+        transport: MQTTTransport,
         clientId:String,
         keepAlive:UInt16?=nil,
         cleanSession:Bool?=nil) {
         
-        self.host = host;
-        self.port = port;
-        self.clientId = clientId;
+        self.transport = transport;
+        self.clientId  = clientId;
         self.cleanSession = cleanSession ?? true;
         self.keepAlive = keepAlive ?? 60;
     }
