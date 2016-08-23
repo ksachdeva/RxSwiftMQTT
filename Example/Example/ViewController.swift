@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MQTTClient
 import RxMQTT
 
 class ViewController: UIViewController {
@@ -21,9 +22,16 @@ class ViewController: UIViewController {
             clientId:"some-id")
         
         rx_mqtt.connect(params)
+            .flatMap { status in
+                return rx_mqtt.subscribe("topic/path2", qos:MQTTQosLevel.AtMostOnce)
+            }
+            .flatMap({ status in
+                return rx_mqtt.rx_didReceiveNewMessage;
+            })
             .subscribe(
-                onNext: { (result) -> Void in
-                    print(result)
+                onNext: { (result: RxMQTTMessage) -> Void in
+                    //
+                    print(String(data:result.payload, encoding: NSUTF8StringEncoding)!)
                 },
                 onError: { (error) -> Void in
                     print(error)
